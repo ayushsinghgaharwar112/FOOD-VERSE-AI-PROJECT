@@ -1,0 +1,51 @@
+services:
+  # Food Verse AI - Core Application Service
+  food-verse-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: food_verse_ai_app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_NAME=Food Verse AI
+      - APP_VERSION=4.0.0
+      - DEBUG=false
+      - HOST=0.0.0.0
+      - PORT=8000
+      - SECRET_KEY=food-verse-production-super-secret-key-32chars-min!!
+      - ACCESS_TOKEN_EXPIRE_MINUTES=60
+      - DATABASE_URL=postgresql+psycopg2://foodverse:securepassword@db:5432/food_verse_prod
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - USDA_API_KEY=${USDA_API_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - app_data:/app/backend/data
+
+  # PostgreSQL Database Service
+  db:
+    image: postgres:16-alpine
+    container_name: food_verse_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: foodverse
+      POSTGRES_PASSWORD: securepassword
+      POSTGRES_DB: food_verse_prod
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U foodverse -d food_verse_prod"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pg_data:
+    driver: local
+  app_data:
+    driver: local

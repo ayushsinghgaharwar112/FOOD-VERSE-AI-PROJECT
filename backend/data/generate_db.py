@@ -1,0 +1,553 @@
+import json
+import os
+
+NUTRITION_DATABASE = {
+    "avocado_toast": {
+        "id": "avocado_toast",
+        "name": "Avocado Toast",
+        "aliases": ["avocado toast", "avo toast", "guacamole toast", "avocado on bread"],
+        "category": "Breakfast",
+        "standard_serving_name": "1 thick slice (150g)",
+        "standard_serving_grams": 150.0,
+        "per_100g": {
+            "calories": 196.0,
+            "protein": 4.5,
+            "carbohydrates": 21.0,
+            "fat": 11.2,
+            "saturated_fat": 1.8,
+            "fiber": 5.8,
+            "sugar": 1.2,
+            "sodium": 280.0,
+            "potassium": 350.0,
+            "calcium": 32.0,
+            "iron": 1.6,
+            "vitamin_c": 6.5,
+            "cholesterol": 0.0
+        },
+        "dietary_tags": ["Vegetarian", "Vegan", "High Fiber", "Heart Healthy"],
+        "health_score": 88,
+        "nutri_grade": "A",
+        "health_notes": "Rich in heart-healthy monounsaturated oleic acid, potassium, and dietary fiber. Excellent for cardiovascular wellness.",
+        "portion_advice": "A standard 150g-200g serving on whole-grain sourdough provides sustained satiety without blood sugar spikes.",
+        "healthier_alternatives": [
+            {
+                "name": "Avocado Toast on Sprouted Grain Bread with Poached Egg",
+                "reason": "Boosts high-quality complete protein by +6g and lowers glycemic index.",
+                "calorie_difference": 30
+            },
+            {
+                "name": "Cottage Cheese & Sliced Avocado Toast",
+                "reason": "Reduces total fat while increasing protein to 15g per slice.",
+                "calorie_difference": -25
+            }
+        ],
+        "is_composite": True,
+        "components": [
+            {"name": "Whole Grain Sourdough", "estimated_grams": 70, "percentage": 47},
+            {"name": "Mashed Hass Avocado", "estimated_grams": 75, "percentage": 50},
+            {"name": "Olive Oil & Chili Flakes", "estimated_grams": 5, "percentage": 3}
+        ]
+    },
+    "grilled_salmon": {
+        "id": "grilled_salmon",
+        "name": "Grilled Salmon Bowl",
+        "aliases": ["grilled salmon", "salmon bowl", "baked salmon", "salmon fillet", "salmon with rice"],
+        "category": "Main Course",
+        "standard_serving_name": "1 bowl with sides (320g)",
+        "standard_serving_grams": 320.0,
+        "per_100g": {
+            "calories": 165.0,
+            "protein": 18.2,
+            "carbohydrates": 11.5,
+            "fat": 5.8,
+            "saturated_fat": 1.1,
+            "fiber": 1.8,
+            "sugar": 0.8,
+            "sodium": 210.0,
+            "potassium": 420.0,
+            "calcium": 28.0,
+            "iron": 1.2,
+            "vitamin_c": 12.0,
+            "cholesterol": 42.0
+        },
+        "dietary_tags": ["High Protein", "Pescatarian", "Omega-3 Rich", "Gluten-Free"],
+        "health_score": 94,
+        "nutri_grade": "A",
+        "health_notes": "Outstanding source of EPA/DHA Omega-3 fatty acids, lean bioavailable protein, and B-vitamins for brain and heart vitality.",
+        "portion_advice": "Ideal post-workout or dinner meal. 150g of salmon fillet paired with 100g brown rice and 70g vegetables offers balanced macronutrients.",
+        "healthier_alternatives": [
+            {
+                "name": "Salmon with Quinoa & Steamed Asparagus",
+                "reason": "Replaces starchy rice with low-glycemic complete amino acid quinoa.",
+                "calorie_difference": -45
+            },
+            {
+                "name": "Salmon with Cauliflower Rice Bowl",
+                "reason": "Cuts carbohydrates by 65% for a strict low-carb or keto-friendly meal.",
+                "calorie_difference": -90
+            }
+        ],
+        "is_composite": True,
+        "components": [
+            {"name": "Grilled Atlantic Salmon Fillet", "estimated_grams": 150, "percentage": 47},
+            {"name": "Steamed Brown Rice", "estimated_grams": 100, "percentage": 31},
+            {"name": "Steamed Garlic Broccoli", "estimated_grams": 70, "percentage": 22}
+        ]
+    },
+    "margherita_pizza": {
+        "id": "margherita_pizza",
+        "name": "Margherita Pizza",
+        "aliases": ["margherita pizza", "cheese pizza", "pizza", "neapolitan pizza", "slice of pizza"],
+        "category": "Main Course",
+        "standard_serving_name": "2 slices (210g)",
+        "standard_serving_grams": 210.0,
+        "per_100g": {
+            "calories": 256.0,
+            "protein": 11.2,
+            "carbohydrates": 32.5,
+            "fat": 9.4,
+            "saturated_fat": 4.5,
+            "fiber": 2.1,
+            "sugar": 3.4,
+            "sodium": 590.0,
+            "potassium": 190.0,
+            "calcium": 180.0,
+            "iron": 2.1,
+            "vitamin_c": 3.2,
+            "cholesterol": 22.0
+        },
+        "dietary_tags": ["Vegetarian", "Contains Dairy", "Contains Gluten"],
+        "health_score": 62,
+        "nutri_grade": "C",
+        "health_notes": "Moderate calorie density with good calcium from mozzarella and lycopene from cooked tomato sauce, but higher in sodium and refined wheat carbohydrates.",
+        "portion_advice": "Limit to 1-2 medium slices (approx 200g) and pair with a crisp leafy green side salad to moderate glycemic impact.",
+        "healthier_alternatives": [
+            {
+                "name": "Thin-Crust Cauliflower Base Margherita",
+                "reason": "Reduces refined flour carbohydrates by 50% and lowers calories by 70 kcal per slice.",
+                "calorie_difference": -70
+            },
+            {
+                "name": "Whole Wheat Thin Crust Pizza with Light Mozzarella",
+                "reason": "Adds +3g dietary fiber and cuts saturated fat by 30%.",
+                "calorie_difference": -40
+            }
+        ],
+        "is_composite": True,
+        "components": [
+            {"name": "Crispy Pizza Crust", "estimated_grams": 110, "percentage": 52},
+            {"name": "Fresh Mozzarella Cheese", "estimated_grams": 55, "percentage": 26},
+            {"name": "San Marzano Tomato Sauce & Basil", "estimated_grams": 45, "percentage": 22}
+        ]
+    },
+    "berry_oatmeal": {
+        "id": "berry_oatmeal",
+        "name": "Berry Oatmeal Bowl",
+        "aliases": ["berry oatmeal", "oatmeal", "porridge", "oats with berries", "oatmeal bowl"],
+        "category": "Breakfast",
+        "standard_serving_name": "1 medium bowl (250g)",
+        "standard_serving_grams": 250.0,
+        "per_100g": {
+            "calories": 98.0,
+            "protein": 3.6,
+            "carbohydrates": 17.8,
+            "fat": 2.1,
+            "saturated_fat": 0.4,
+            "fiber": 3.4,
+            "sugar": 4.2,
+            "sodium": 45.0,
+            "potassium": 210.0,
+            "calcium": 65.0,
+            "iron": 1.4,
+            "vitamin_c": 14.5,
+            "cholesterol": 0.0
+        },
+        "dietary_tags": ["Vegetarian", "Vegan", "High Fiber", "Low Sodium", "Heart Healthy"],
+        "health_score": 92,
+        "nutri_grade": "A",
+        "health_notes": "High in beta-glucan soluble fiber known to lower LDL cholesterol, coupled with polyphenol anthocyanins from fresh blueberries and raspberries.",
+        "portion_advice": "A standard 250g bowl provides smooth, sustained energy for 3-4 hours without insulin spikes.",
+        "healthier_alternatives": [
+            {
+                "name": "Berry Oatmeal with Chia Seeds & Whey/Plant Protein",
+                "reason": "Boosts protein from 9g to 22g and adds 4g Omega-3 ALA.",
+                "calorie_difference": 50
+            },
+            {
+                "name": "Overnight Oats with Unsweetened Almond Milk",
+                "reason": "Lower lactose and zero added refined sugars.",
+                "calorie_difference": -20
+            }
+        ],
+        "is_composite": True,
+        "components": [
+            {"name": "Rolled Oats (Cooked)", "estimated_grams": 170, "percentage": 68},
+            {"name": "Fresh Blueberries & Strawberries", "estimated_grams": 65, "percentage": 26},
+            {"name": "Almond Flakes & Honey Drizzle", "estimated_grams": 15, "percentage": 6}
+        ]
+    },
+    "chicken_caesar_salad": {
+        "id": "chicken_caesar_salad",
+        "name": "Chicken Caesar Salad",
+        "aliases": ["chicken caesar salad", "caesar salad", "grilled chicken salad", "chicken salad"],
+        "category": "Salad",
+        "standard_serving_name": "1 large bowl (280g)",
+        "standard_serving_grams": 280.0,
+        "per_100g": {
+            "calories": 142.0,
+            "protein": 13.8,
+            "carbohydrates": 5.2,
+            "fat": 7.6,
+            "saturated_fat": 2.1,
+            "fiber": 1.4,
+            "sugar": 1.6,
+            "sodium": 340.0,
+            "potassium": 290.0,
+            "calcium": 95.0,
+            "iron": 1.3,
+            "vitamin_c": 9.2,
+            "cholesterol": 38.0
+        },
+        "dietary_tags": ["High Protein", "Low Carb", "Contains Dairy"],
+        "health_score": 82,
+        "nutri_grade": "B",
+        "health_notes": "Lean white chicken meat provides all 9 essential amino acids with crisp romaine supplying vitamins A and K. Caesar dressing contributes the bulk of fat and sodium.",
+        "portion_advice": "A generous 280g serving is satisfying as a complete meal. Ask for dressing on the side to manage fat intake.",
+        "healthier_alternatives": [
+            {
+                "name": "Chicken Caesar with Greek Yogurt Dressing",
+                "reason": "Cuts fat by 60% while adding +4g protein per serving.",
+                "calorie_difference": -65
+            },
+            {
+                "name": "Chicken Caesar with Crispy Chickpeas instead of Croutons",
+                "reason": "Replaces refined croutons with complex fiber and resistant starch.",
+                "calorie_difference": -15
+            }
+        ],
+        "is_composite": True,
+        "components": [
+            {"name": "Grilled Chicken Breast Strips", "estimated_grams": 120, "percentage": 43},
+            {"name": "Crisp Romaine Lettuce", "estimated_grams": 100, "percentage": 36},
+            {"name": "Caesar Dressing & Shaved Parmesan", "estimated_grams": 40, "percentage": 14},
+            {"name": "Garlic Herb Croutons", "estimated_grams": 20, "percentage": 7}
+        ]
+    },
+    "chocolate_cake": {
+        "id": "chocolate_cake",
+        "name": "Chocolate Fudge Cake",
+        "aliases": ["chocolate cake", "fudge cake", "chocolate pastry", "brownie", "cake"],
+        "category": "Dessert",
+        "standard_serving_name": "1 slice (115g)",
+        "standard_serving_grams": 115.0,
+        "per_100g": {
+            "calories": 389.0,
+            "protein": 4.2,
+            "carbohydrates": 54.0,
+            "fat": 18.5,
+            "saturated_fat": 8.2,
+            "fiber": 2.5,
+            "sugar": 38.0,
+            "sodium": 290.0,
+            "potassium": 180.0,
+            "calcium": 52.0,
+            "iron": 2.4,
+            "vitamin_c": 0.0,
+            "cholesterol": 45.0
+        },
+        "dietary_tags": ["Dessert", "Contains Dairy", "Contains Gluten", "Indulgence"],
+        "health_score": 42,
+        "nutri_grade": "E",
+        "health_notes": "High caloric density and concentrated refined sugars and saturated fats. Best enjoyed mindfully as an occasional treat.",
+        "portion_advice": "A modest 60g-80g slice is recommended. Pairing with a hot unsweetened espresso or fresh berries helps balance sweetness.",
+        "healthier_alternatives": [
+            {
+                "name": "Dark Chocolate Avocado Mousse (70%+ Cacao)",
+                "reason": "Provides antioxidant flavonoids and healthy fats with 60% less refined sugar.",
+                "calorie_difference": -140
+            },
+            {
+                "name": "Flourless Black Bean Protein Brownie",
+                "reason": "Adds 6g fiber and 8g protein per serving with natural stevia/monk fruit sweetening.",
+                "calorie_difference": -180
+            }
+        ],
+        "is_composite": False,
+        "components": [
+            {"name": "Chocolate Sponge Cake", "estimated_grams": 75, "percentage": 65},
+            {"name": "Fudge Buttercream Frosting", "estimated_grams": 40, "percentage": 35}
+        ]
+    },
+    "cheeseburger": {
+        "id": "cheeseburger",
+        "name": "Classic Cheeseburger",
+        "aliases": ["cheeseburger", "burger", "beef burger", "hamburger with cheese"],
+        "category": "Main Course",
+        "standard_serving_name": "1 burger (220g)",
+        "standard_serving_grams": 220.0,
+        "per_100g": {
+            "calories": 285.0,
+            "protein": 15.5,
+            "carbohydrates": 23.0,
+            "fat": 14.8,
+            "saturated_fat": 6.2,
+            "fiber": 1.2,
+            "sugar": 3.8,
+            "sodium": 610.0,
+            "potassium": 280.0,
+            "calcium": 140.0,
+            "iron": 2.9,
+            "vitamin_c": 1.5,
+            "cholesterol": 55.0
+        },
+        "dietary_tags": ["High Protein", "Contains Dairy", "Contains Gluten"],
+        "health_score": 58,
+        "nutri_grade": "D",
+        "health_notes": "High in protein, zinc, and bioavailable heme iron, but also elevated in sodium and saturated animal fat.",
+        "portion_advice": "One single-patty burger (200g-220g). Skip heavy mayo and pair with a side salad instead of deep-fried fries.",
+        "healthier_alternatives": [
+            {
+                "name": "Grilled Turkey Burger on Whole Wheat Bun",
+                "reason": "Reduces saturated fat by 45% while preserving 28g lean protein.",
+                "calorie_difference": -95
+            },
+            {
+                "name": "Lettuce-Wrapped Lean Beef Burger",
+                "reason": "Eliminates 140 calories and 25g refined carbohydrates from the bun.",
+                "calorie_difference": -140
+            }
+        ],
+        "is_composite": True,
+        "components": [
+            {"name": "Grilled Beef Patty", "estimated_grams": 100, "percentage": 45},
+            {"name": "Sesame Seed Bun", "estimated_grams": 60, "percentage": 27},
+            {"name": "Cheddar Cheese Slice", "estimated_grams": 25, "percentage": 11},
+            {"name": "Lettuce, Tomato, Pickle & Sauce", "estimated_grams": 35, "percentage": 17}
+        ]
+    },
+    "spaghetti_bolognese": {
+        "id": "spaghetti_bolognese",
+        "name": "Spaghetti Bolognese",
+        "aliases": ["spaghetti bolognese", "pasta bolognese", "spaghetti", "pasta with meat sauce"],
+        "category": "Main Course",
+        "standard_serving_name": "1 plate (300g)",
+        "standard_serving_grams": 300.0,
+        "per_100g": {
+            "calories": 158.0,
+            "protein": 8.5,
+            "carbohydrates": 19.5,
+            "fat": 5.2,
+            "saturated_fat": 1.9,
+            "fiber": 1.8,
+            "sugar": 2.6,
+            "sodium": 360.0,
+            "potassium": 270.0,
+            "calcium": 35.0,
+            "iron": 1.8,
+            "vitamin_c": 4.2,
+            "cholesterol": 24.0
+        },
+        "dietary_tags": ["Contains Gluten", "Moderate Protein"],
+        "health_score": 74,
+        "nutri_grade": "B",
+        "health_notes": "Balanced comfort dish with slow-cooked tomato rich in lycopene and savory ground meat providing B12.",
+        "portion_advice": "A 250g-300g portion cooked al-dente provides a lower glycemic response than overcooked pasta.",
+        "healthier_alternatives": [
+            {
+                "name": "Zucchini Noodles (Zoodles) Bolognese",
+                "reason": "Replaces wheat pasta with zucchini, cutting calories by 60%.",
+                "calorie_difference": -160
+            },
+            {
+                "name": "Edamame or Lentil Pasta Bolognese",
+                "reason": "Doubles the protein to 24g and triples dietary fiber to 9g.",
+                "calorie_difference": -30
+            }
+        ],
+        "is_composite": True,
+        "components": [
+            {"name": "Durum Wheat Spaghetti", "estimated_grams": 160, "percentage": 53},
+            {"name": "Beef Tomato Bolognese Sauce", "estimated_grams": 130, "percentage": 43},
+            {"name": "Grated Parmesan Garnish", "estimated_grams": 10, "percentage": 4}
+        ]
+    },
+    "sushi_roll": {
+        "id": "sushi_roll",
+        "name": "Salmon Avocado Sushi Roll",
+        "aliases": ["sushi roll", "sushi", "salmon sushi", "maki roll", "california roll"],
+        "category": "Main Course",
+        "standard_serving_name": "8 pieces (220g)",
+        "standard_serving_grams": 220.0,
+        "per_100g": {
+            "calories": 168.0,
+            "protein": 6.8,
+            "carbohydrates": 26.2,
+            "fat": 4.1,
+            "saturated_fat": 0.7,
+            "fiber": 1.5,
+            "sugar": 2.2,
+            "sodium": 320.0,
+            "potassium": 190.0,
+            "calcium": 18.0,
+            "iron": 0.9,
+            "vitamin_c": 2.1,
+            "cholesterol": 12.0
+        },
+        "dietary_tags": ["Pescatarian", "Omega-3", "Low Saturated Fat"],
+        "health_score": 85,
+        "nutri_grade": "B",
+        "health_notes": "Nutrient-dense with fresh salmon delivering omega-3 fats, seaweed (nori) supplying iodine and minerals.",
+        "portion_advice": "A standard 6 to 8-piece roll (approx 200g-220g). Dip lightly in low-sodium soy sauce to avoid excess salt.",
+        "healthier_alternatives": [
+            {
+                "name": "Brown Rice or Cauliflower Rice Sushi",
+                "reason": "Enhances fiber and eliminates refined sushi seasoning sugars.",
+                "calorie_difference": -50
+            },
+            {
+                "name": "Salmon Sashimi with Cucumber Salad",
+                "reason": "Zero refined white rice, maximizes pure protein and omega-3s.",
+                "calorie_difference": -110
+            }
+        ],
+        "is_composite": True,
+        "components": [
+            {"name": "Seasoned Sushi Rice", "estimated_grams": 130, "percentage": 59},
+            {"name": "Fresh Atlantic Salmon", "estimated_grams": 50, "percentage": 23},
+            {"name": "Avocado & Nori Seaweed", "estimated_grams": 40, "percentage": 18}
+        ]
+    },
+    "greek_yogurt_parfait": {
+        "id": "greek_yogurt_parfait",
+        "name": "Greek Yogurt Berry Parfait",
+        "aliases": ["greek yogurt parfait", "yogurt parfait", "greek yogurt", "yogurt bowl"],
+        "category": "Breakfast",
+        "standard_serving_name": "1 cup parfait (240g)",
+        "standard_serving_grams": 240.0,
+        "per_100g": {
+            "calories": 115.0,
+            "protein": 8.8,
+            "carbohydrates": 14.5,
+            "fat": 2.5,
+            "saturated_fat": 1.2,
+            "fiber": 1.9,
+            "sugar": 8.5,
+            "sodium": 42.0,
+            "potassium": 230.0,
+            "calcium": 125.0,
+            "iron": 0.6,
+            "vitamin_c": 11.0,
+            "cholesterol": 8.0
+        },
+        "dietary_tags": ["High Protein", "Vegetarian", "Probiotic", "Calcium Rich"],
+        "health_score": 90,
+        "nutri_grade": "A",
+        "health_notes": "Strained Greek yogurt provides active live probiotics for gut microbiome health and high-casein protein.",
+        "portion_advice": "200g-250g makes a protein-packed breakfast or mid-afternoon recovery snack.",
+        "healthier_alternatives": [
+            {
+                "name": "0% Fat Greek Yogurt with Hemp Seeds & Fresh Berries",
+                "reason": "Lowers saturated fat to zero and adds plant-based omega-3s.",
+                "calorie_difference": -30
+            }
+        ],
+        "is_composite": True,
+        "components": [
+            {"name": "Plain Low-Fat Greek Yogurt", "estimated_grams": 170, "percentage": 71},
+            {"name": "Mixed Berries (Strawberries & Blueberries)", "estimated_grams": 50, "percentage": 21},
+            {"name": "Honey & Oat Granola", "estimated_grams": 20, "percentage": 8}
+        ]
+    },
+    "vegetable_stir_fry": {
+        "id": "vegetable_stir_fry",
+        "name": "Tofu & Vegetable Stir Fry",
+        "aliases": ["vegetable stir fry", "tofu stir fry", "veggie stir fry", "stir fry"],
+        "category": "Main Course",
+        "standard_serving_name": "1 large bowl (300g)",
+        "standard_serving_grams": 300.0,
+        "per_100g": {
+            "calories": 110.0,
+            "protein": 6.5,
+            "carbohydrates": 10.2,
+            "fat": 4.8,
+            "saturated_fat": 0.7,
+            "fiber": 2.8,
+            "sugar": 3.1,
+            "sodium": 310.0,
+            "potassium": 280.0,
+            "calcium": 90.0,
+            "iron": 1.9,
+            "vitamin_c": 28.0,
+            "cholesterol": 0.0
+        },
+        "dietary_tags": ["Vegan", "Vegetarian", "High Fiber", "Plant Protein"],
+        "health_score": 91,
+        "nutri_grade": "A",
+        "health_notes": "Vibrant rainbow of bell peppers, broccoli, carrots, and snap peas delivering immense vitamin C, phytonutrients, and isoflavones from firm tofu.",
+        "portion_advice": "Generous 300g portion can be eaten guilt-free with minimal calorie footprint.",
+        "healthier_alternatives": [
+            {
+                "name": "Stir Fry with Liquid Aminos instead of Regular Soy Sauce",
+                "reason": "Cuts sodium content by 40%.",
+                "calorie_difference": 0
+            }
+        ],
+        "is_composite": True,
+        "components": [
+            {"name": "Sauteed Rainbow Vegetables", "estimated_grams": 180, "percentage": 60},
+            {"name": "Pan-Seared Organic Firm Tofu", "estimated_grams": 90, "percentage": 30},
+            {"name": "Sesame Ginger Glaze", "estimated_grams": 30, "percentage": 10}
+        ]
+    },
+    "french_fries": {
+        "id": "french_fries",
+        "name": "Crispy French Fries",
+        "aliases": ["french fries", "fries", "potato fries", "chips"],
+        "category": "Snack",
+        "standard_serving_name": "1 medium order (130g)",
+        "standard_serving_grams": 130.0,
+        "per_100g": {
+            "calories": 312.0,
+            "protein": 3.4,
+            "carbohydrates": 41.5,
+            "fat": 15.0,
+            "saturated_fat": 2.3,
+            "fiber": 3.8,
+            "sugar": 0.3,
+            "sodium": 490.0,
+            "potassium": 580.0,
+            "calcium": 18.0,
+            "iron": 1.1,
+            "vitamin_c": 4.8,
+            "cholesterol": 0.0
+        },
+        "dietary_tags": ["Vegan", "High Sodium", "Deep Fried"],
+        "health_score": 48,
+        "nutri_grade": "D",
+        "health_notes": "Potatoes are naturally rich in potassium and vitamin C, but deep frying absorbs refined oils and elevates advanced glycation end-products (AGEs).",
+        "portion_advice": "Share a medium portion (approx 60-70g per person) or choose air-fried alternatives.",
+        "healthier_alternatives": [
+            {
+                "name": "Air-Fried Sweet Potato Wedges with Sea Salt & Paprika",
+                "reason": "Provides 300% daily Vitamin A, 65% less oxidized oil, and lower glycemic load.",
+                "calorie_difference": -110
+            },
+            {
+                "name": "Roasted Zucchini or Carrot Fries",
+                "reason": "Cuts calories by 75% and provides natural prebiotic dietary fibers.",
+                "calorie_difference": -180
+            }
+        ],
+        "is_composite": False,
+        "components": [
+            {"name": "Deep-Fried Russet Potato Strips", "estimated_grams": 125, "percentage": 96},
+            {"name": "Refined Salt & Oil Coating", "estimated_grams": 5, "percentage": 4}
+        ]
+    }
+}
+
+output_path = os.path.join(r"C:\Users\sumit\.gemini\antigravity\scratch\food-verse-ai\backend\data", "nutrition_db.json")
+with open(output_path, "w", encoding="utf-8") as f:
+    json.dump(NUTRITION_DATABASE, f, indent=2, ensure_ascii=False)
+
+print(f"Nutrition database created with {len(NUTRITION_DATABASE)} verified items at: {output_path}")
