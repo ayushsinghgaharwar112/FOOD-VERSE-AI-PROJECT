@@ -166,3 +166,5 @@ python -m pytest backend/tests -v
 - **File Validation**: Strict MIME type validation, file size limits (10MB for photos, 25MB for videos), and duration limits (≤30 seconds). Temporary video frames are securely unlinked upon processing.
 - **Attribution Transparency**: Every AI output explicitly displays its source (`USDA Verified Database`, `BioFresh-Net Model Prediction`, or `Gemini 3.5 Generative Synthesis`).
 - **Secrets Protection**: `.env` is ignored by Git; `.env.example` contains only template placeholders.
+#   F O O D - V E R S E - A I - P R O J E C T  
+ 
